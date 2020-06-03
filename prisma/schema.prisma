@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model country {
+  code_iso_alpha3 String     @unique
+  code_m49        String     @unique
+  created_at      DateTime   @default(now())
+  detete_at       DateTime?
+  id              String     @default(dbgenerated()) @id
+  name            String     @unique
+  updated_at      DateTime   @default(now())
+  version         Int        @default(1)
+  province        province[]
+
+  @@index([code_m49], name: "IDX_8eef18cb087005e9604d63d4fa")
+  @@index([id], name: "IDX_bf6e37c231c4f4ea56dcd88726")
+  @@index([code_iso_alpha3], name: "IDX_e86582c8268b3b73a8c7fe3019")
+}
+
+model email {
+  created_at      DateTime     @default(now())
+  email           String       @unique
+  enabled         Boolean      @default(true)
+  id              String       @default(dbgenerated()) @id
+  legal_person_id String
+  scope           String?      @default("")
+  updated_at      DateTime     @default(now())
+  version         Int          @default(1)
+  legal_person    legal_person @relation(fields: [legal_person_id], references: [id])
+
+  @@index([id], name: "IDX_1e7ed8734ee054ef18002e29b1")
+}
+
+model legal_person {
+  address                  String                @default("-")
+  created_at               DateTime?             @default(now())
+  detete_at                DateTime?
+  id                       String                @default(dbgenerated()) @id
+  initials                 String?               @default("-")
+  legal_person_registry_id String
+  legal_person_type_id     String
+  migration_id             Int?
+  municipality_id          String?
+  name                     String
+  registry_code            String                @unique
+  titular                  String                @default("-")
+  updated_at               DateTime?             @default(now())
+  version                  Int                   @default(1)
+  legal_person_registry    legal_person_registry @relation(fields: [legal_person_registry_id], references: [id])
+  legal_person_type        legal_person_type     @relation(fields: [legal_person_type_id], references: [id])
+  municipality             municipality?         @relation(fields: [municipality_id], references: [id])
+  email                    email[]
+  phone_number             phone_number[]
+  structure                structure?
+
+  @@index([migration_id], name: "IDX_04472abeaba63dcc96bb6f01f1")
+  @@index([initials], name: "IDX_8dfae52c957b869f8552389917")
+  @@index([id], name: "IDX_f74fd434bd5c87419aedfd683b")
+}
+
+model legal_person_registry {
+  created_at   DateTime       @default(now())
+  detete_at    DateTime?
+  id           String         @default(dbgenerated()) @id
+  initials     String         @unique
+  name         String
+  updated_at   DateTime       @default(now())
+  version      Int            @default(1)
+  legal_person legal_person[]
+
+  @@index([id], name: "IDX_c04a255761b1e2e5c60844b0e3")
+  @@index([initials], name: "IDX_f89de586d142be71940458b718")
+}
+
+model legal_person_type {
+  code         String         @unique
+  created_at   DateTime       @default(now())
+  detete_at    DateTime?
+  id           String         @default(dbgenerated()) @id
+  initials     String         @unique
+  migration_id Int?           @unique
+  name         String
+  updated_at   DateTime       @default(now())
+  version      Int            @default(1)
+  legal_person legal_person[]
+
+  @@index([migration_id], name: "IDX_4ee875c96f8db2dfa956f1a441")
+  @@index([id], name: "IDX_af4a2bb7549c045567be4c0a2d")
+  @@index([initials], name: "IDX_be41e77280422809b3f61d95cd")
+  @@index([code], name: "IDX_d52b92d07a9542316648519a2f")
+}
+
+model migrations {
+  id        Int    @default(autoincrement()) @id
+  name      String
+  timestamp Int
+}
+
+model municipality {
+  code         String?        @unique
+  created_at   DateTime       @default(now())
+  detete_at    DateTime?
+  id           String         @default(dbgenerated()) @id
+  initials     String?
+  migration_id Int?           @unique
+  name         String
+  province_id  String
+  updated_at   DateTime       @default(now())
+  version      Int            @default(1)
+  province     province       @relation(fields: [province_id], references: [id])
+  legal_person legal_person[]
+
+  @@index([migration_id], name: "IDX_206cef1bf4f5cf66bea60fd94c")
+  @@index([id], name: "IDX_281ad341f20df7c41b83a182e2")
+  @@index([code], name: "IDX_f01eb47e7b81481ca5a146a786")
+}
+
+model phone_number {
+  created_at      DateTime     @default(now())
+  enabled         Boolean      @default(true)
+  id              String       @default(dbgenerated()) @id
+  legal_person_id String
+  phone_number    String
+  scope           String?
+  updated_at      DateTime     @default(now())
+  version         Int          @default(1)
+  legal_person    legal_person @relation(fields: [legal_person_id], references: [id])
+
+  @@index([id], name: "IDX_c16f58426537a660b3f2a26e98")
+}
+
+model province {
+  code         String         @unique
+  country_id   String
+  created_at   DateTime       @default(now())
+  detete_at    DateTime?
+  id           String         @default(dbgenerated()) @id
+  initials     String?        @unique
+  migration_id Int?           @unique
+  name         String         @unique
+  updated_at   DateTime       @default(now())
+  version      Int            @default(1)
+  country      country        @relation(fields: [country_id], references: [id])
+  municipality municipality[]
+
+  @@index([code], name: "IDX_3288dfa18d390ed33b359fc041")
+  @@index([id], name: "IDX_4f461cb46f57e806516b707365")
+  @@index([migration_id], name: "IDX_6a3d8060b848bee37e22625d3b")
+}
+
+model structure {
+  attended_by_id                                       String?
+  created_at                                           DateTime     @default(now())
+  detete_at                                            DateTime?
+  id                                                   String       @default(dbgenerated()) @id
+  legal_person_id                                      String       @unique
+  migration_id                                         Int?
+  organization_id                                      String?
+  parent_id                                            String?
+  updated_at                                           DateTime     @default(now())
+  version                                              Int          @default(1)
+  structure_structureTostructure_attended_by_id        structure?   @relation("structureTostructure_attended_by_id", fields: [attended_by_id], references: [id])
+  legal_person                                         legal_person @relation(fields: [legal_person_id], references: [id])
+  structure_structureTostructure_organization_id       structure?   @relation("structureTostructure_organization_id", fields: [organization_id], references: [id])
+  structure_structureTostructure_parent_id             structure?   @relation("structureTostructure_parent_id", fields: [parent_id], references: [id])
+  other_structure_structureTostructure_attended_by_id  structure[]  @relation("structureTostructure_attended_by_id")
+  other_structure_structureTostructure_organization_id structure[]  @relation("structureTostructure_organization_id")
+  other_structure_structureTostructure_parent_id       structure[]  @relation("structureTostructure_parent_id")
+
+  @@index([migration_id], name: "IDX_48814b20d81ecad5009607e806")
+  @@index([id], name: "IDX_90ac7986e769d602d218075215")
+}
+
+model unit_of_measurement {
+  created_at                   DateTime                       @default(now())
+  denominator                  String                         @unique
+  description                  String?                        @default("-")
+  detete_at                    DateTime?
+  equation_b2uom               String
+  equation_uom2b               String
+  id                           String                         @default(dbgenerated()) @id
+  readonly                     Boolean                        @default(true)
+  symbol                       String                         @unique
+  unit_of_measurement_type_id  String
+  updated_at                   DateTime                       @default(now())
+  version                      Int                            @default(1)
+  unit_of_measurement_type     unit_of_measurement_type       @relation(fields: [unit_of_measurement_type_id], references: [id])
+  unit_of_measurement_quantity unit_of_measurement_quantity[]
+
+  @@index([id], name: "IDX_44349d16c109aa8ac1ee2726d5")
+  @@index([symbol], name: "IDX_6a7033c82093f0a844cb5a5b99")
+  @@index([denominator], name: "IDX_fd8ec744bdfc11e13aef9b4d67")
+}
+
+model unit_of_measurement_quantity {
+  created_at             DateTime             @default(now())
+  enabled                Boolean              @default(true)
+  id                     String               @default(dbgenerated()) @id
+  quantity               Int                  @unique
+  unit_of_measurement_id String?
+  updated_at             DateTime             @default(now())
+  version                Int                  @default(1)
+  unit_of_measurement    unit_of_measurement? @relation(fields: [unit_of_measurement_id], references: [id])
+
+  @@index([id], name: "IDX_4c33cc77374f957930257b4623")
+}
+
+model unit_of_measurement_type {
+  base                String                @unique
+  created_at          DateTime              @default(now())
+  description         String?               @default("")
+  detete_at           DateTime?
+  id                  String                @default(dbgenerated()) @id
+  type                String                @unique
+  updated_at          DateTime              @default(now())
+  version             Int                   @default(1)
+  unit_of_measurement unit_of_measurement[]
+
+  @@index([id], name: "IDX_a0dd0b46505bdb0b0a9da2ea58")
+}

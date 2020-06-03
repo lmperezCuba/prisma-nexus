@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+    core-prisma:
+        container_name: core-prisma
+        image: core-prisma
+        build:
+           context: .
+           target: builder
+        ports:
+            - 3003:3000
+            - 4000:4000
+            - "9231:9230"
+        tty: true
+        working_dir: /usr/src/app
+        volumes:
+            - ./:/usr/src/app
+            - /usr/src/app/node_modules
+            # - .npmrc:/root/.npmrc      
+        # env_file:
+            # - prisma/.env
+        #command: bash -c "yarn run start:dev"
+        networks:
+            - core_prisma_network
+            - databases_postgres_network    
+            
+networks:
+    core_prisma_network:
+        name: core_prisma_network
+    databases_postgres_network:
+        external:
+            name: databases_postgres_network            
