@@ -12,7 +12,7 @@
 #   Building stage
 #----------------------
 
-FROM node:13.7 AS builder
+FROM node:14 AS builder
 
 ENV TZ=America/Havana
 ENV COMPOSE_HTTP_TIMEOUT=200
