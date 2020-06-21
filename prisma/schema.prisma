@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model country {
+model Country {
   code_iso_alpha3 String     @unique
   code_m49        String     @unique
   created_at      DateTime   @default(now())
@@ -16,11 +16,12 @@ model country {
   name            String     @unique
   updated_at      DateTime   @default(now())
   version         Int        @default(1)
-  province        province[]
+  province        Province[]
 
   @@index([code_m49], name: "IDX_8eef18cb087005e9604d63d4fa")
   @@index([id], name: "IDX_bf6e37c231c4f4ea56dcd88726")
   @@index([code_iso_alpha3], name: "IDX_e86582c8268b3b73a8c7fe3019")
+  @@map(name: "country")
 }
 
 model email {
@@ -113,7 +114,7 @@ model municipality {
   province_id  String
   updated_at   DateTime       @default(now())
   version      Int            @default(1)
-  province     province       @relation(fields: [province_id], references: [id])
+  province     Province       @relation(fields: [province_id], references: [id])
   legal_person legal_person[]
 
   @@index([migration_id], name: "IDX_206cef1bf4f5cf66bea60fd94c")
@@ -135,7 +136,7 @@ model phone_number {
   @@index([id], name: "IDX_c16f58426537a660b3f2a26e98")
 }
 
-model province {
+model Province {
   code         String         @unique
   country_id   String
   created_at   DateTime       @default(now())
@@ -146,12 +147,13 @@ model province {
   name         String         @unique
   updated_at   DateTime       @default(now())
   version      Int            @default(1)
-  country      country        @relation(fields: [country_id], references: [id])
+  country      Country        @relation(fields: [country_id], references: [id])
   municipality municipality[]
 
   @@index([code], name: "IDX_3288dfa18d390ed33b359fc041")
   @@index([id], name: "IDX_4f461cb46f57e806516b707365")
   @@index([migration_id], name: "IDX_6a3d8060b848bee37e22625d3b")
+  @@map(name: "province")
 }
 
 model structure {
